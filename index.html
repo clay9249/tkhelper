@@ -413,13 +413,13 @@
 
             <div id="drop-filter" class="filter-box" style="display:none;">
                 <select id="dMap" onchange="renderDropTable()" style="width:100%; padding:8px;">
-                    <option value="">選擇關卡</option>
+                    <option value="">選擇合戰場</option>
                 </select>
                 <table>
                     <thead>
                         <tr>
-                            <th style="width:20%">位置</th>
-                            <th>掉落清單 (按刀種分類)</th>
+                            <th style="width:20%">合戰場</th>
+                            <th>掉落</th>
                         </tr>
                     </thead>
                     <tbody id="dropBody"></tbody>
@@ -922,7 +922,7 @@
                     <p style="margin: 8px 0;"><b>🌸 鍛刀時間：</b><span style="color:var(--gold);">${s.time}</span></p>
                     
                     <div style="margin-top:15px;">
-                        <b style="display:block; margin-bottom:8px;">📍 掉落關卡：</b>
+                        <b style="display:block; margin-bottom:8px;">📍 掉落點：</b>
                         
                         ${d_boss.length ? `
                             <div style="margin-bottom:10px;">
