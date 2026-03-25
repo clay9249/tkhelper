@@ -5,14 +5,14 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-<link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
 
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#e8e6e3">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#e8e6e3">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>審神者執務小助手</title>
+    <title>全知審神者視角</title>
     <style>
         :root {
             /* 背景改為淡雅的銀鼠色 */
@@ -281,6 +281,108 @@
             background: white;
         }
 
+        /* 隨機抽籤頁面專用樣式 */
+        .random-btn-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .random-btn {
+            flex: 1;
+            padding: 12px 5px;
+            border: 1px solid var(--gold-light);
+            background: white;
+            color: var(--gold);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .random-btn:active {
+            background: var(--gold);
+            color: white;
+            transform: scale(0.95);
+        }
+
+        .result-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px dashed #ddd;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 核心調整：對齊標籤容器 */
+        .role-tag {
+            background: var(--gold-light);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            /* 固定寬度確保後面內容對齊 */
+            width: 115px;
+            white-space: nowrap;
+            margin-right: 12px;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        .role-icon {
+            display: inline-block;
+            width: 22px;
+            /* 固定圖示佔位寬度 */
+            text-align: center;
+            margin-right: 4px;
+        }
+
+        .role-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .sword-name {
+            font-weight: 600;
+            color: var(--honmaru-wood);
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sword-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
         /* 資料維護清單樣式 */
         .data-item {
             display: flex;
@@ -337,13 +439,14 @@
 <body>
 
     <div class="app-header">
-        <h2>🌸 審神者執務小助手 🌸</h2>
+        <h2>🌸 全知審神者視角 🌸</h2>
     </div>
 
     <div class="tab-bar">
         <button class="tab-btn active" onclick="showPage('page-exp', this)">遠征</button>
         <button class="tab-btn" onclick="showPage('page-wiki', this)">入手</button>
         <button class="tab-btn" onclick="showPage('page-battle', this)">出陣</button>
+        <button class="tab-btn" onclick="showPage('page-random', this)">排班</button>
         <button class="tab-btn" onclick="showPage('page-data', this)">維護</button>
     </div>
 
@@ -437,6 +540,24 @@
         </div>
     </div>
 
+    <!-- 3. 本丸隨機 (新增頁面) -->
+    <div id="page-random" class="page">
+        <div class="card">
+            <h3>🌸 排班表</h3>
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">選擇值日生。</p>
+
+            <div class="random-btn-group">
+                <button class="random-btn" onclick="drawRandom(1, 'attendant')">近侍</button>
+                <button class="random-btn" onclick="drawRandom(2, 'internal')">內番</button>
+                <button class="random-btn" onclick="drawRandom(6, 'captain')">番長</button>
+            </div>
+
+            <div id="randomResult" style="margin-top: 10px;">
+                <!-- 結果顯示區域 -->
+            </div>
+        </div>
+    </div>
+
     <div id="page-battle" class="page">
         <div style="text-align:center; padding-top:20px;">
             <div id="battleTags"
@@ -457,7 +578,7 @@
 
     <div id="page-data" class="page">
         <div class="filter-box">
-            <b>⚙️ 出陣標籤管理</b><br><br>
+            <h3>⚙️ 出陣標籤管理</h3>
             <input type="text" id="newMapName" placeholder="地圖名 (如 7-4)">
             <div style="margin:10px 0;">
                 <label><input type="checkbox" name="mTag" value="日常">日常</label>
@@ -570,7 +691,7 @@
             { name: "日光一文字", type: "太刀", time: "03:20:00" },
             { name: "太閤左文字", type: "短刀", time: "00:30:00" },
             { name: "五月雨江", type: "打刀", time: "01:25:00" },
-            { name: "大千鳥十文字槍", type: "槍", time: "03:00:00"},
+            { name: "大千鳥十文字槍", type: "槍", time: "03:00:00" },
             { name: "泛塵", type: "脇差", time: "00:40:00" },
             { name: "一文字則宗", type: "太刀", time: "03:50:00" },
             { name: "村雲江", type: "打刀", time: "01:25:00" },
@@ -628,7 +749,7 @@
                 boss: ["今剣", "にっかり青江", "鳴狐", "鯰尾藤四郎", "骨喰藤四郎", "平野藤四郎", "厚藤四郎", "後藤藤四郎", "信濃藤四郎", "宗三左文字", "加州清光", "大和守安定", "歌仙兼定", "陸奥守吉行", "山姥切国広", "堀川国広", "蜂須賀虎徹", "大倶利伽羅", "同田貫正国", "太郎太刀", "次郎太刀"]
             },
             "2-2": {
-               normal: ["今剣", "にっかり青江", "鯰尾藤四郎", "骨喰藤四郎", "平野藤四郎", "厚藤四郎", "前田藤四郎", "秋田藤四郎", "乱藤四郎", "五虎退", "薬研藤四郎", "愛染国俊", "小夜左文字", "加州清光", "歌仙兼定", "陸奥守吉行", "山姥切国広", "蜂須賀虎徹", "篭手切江"],
+                normal: ["今剣", "にっかり青江", "鯰尾藤四郎", "骨喰藤四郎", "平野藤四郎", "厚藤四郎", "前田藤四郎", "秋田藤四郎", "乱藤四郎", "五虎退", "薬研藤四郎", "愛染国俊", "小夜左文字", "加州清光", "歌仙兼定", "陸奥守吉行", "山姥切国広", "蜂須賀虎徹", "篭手切江"],
                 boss: ["今剣", "にっかり青江", "鳴狐", "鯰尾藤四郎", "骨喰藤四郎", "平野藤四郎", "厚藤四郎", "後藤藤四郎", "信濃藤四郎", "宗三左文字", "加州清光", "大和守安定", "歌仙兼定", "陸奥守吉行", "山姥切国広", "堀川国広", "蜂須賀虎徹", "大倶利伽羅", "同田貫正国", "篭手切江", "日向正宗"]
             },
             "2-3": {
@@ -835,6 +956,43 @@
                 </tr>
             `;
             }).join('');
+        }
+
+        // --- 本丸隨機邏輯 ---
+        function drawRandom(count, type) {
+            const res = document.getElementById('randomResult');
+            const shuffled = [...SWORD_DATA].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, count);
+
+            let roleLabels = [];
+            if (type === 'attendant') {
+                roleLabels = ["🌸 近侍"];
+            } else if (type === 'internal') {
+                roleLabels = ["🌱 畑當番", "🌱 畑當番"];
+            } else {
+                // 為番長加上合適的圖示
+                roleLabels = [
+                    "⚔️ 総務番長",
+                    "🧹 清掃番長",
+                    "🏮 勘定番長",
+                    "📜 教育番長",
+                    "🗝️ 蔵番長",
+                    "🍱 厨番長"
+                ];
+            }
+
+            let html = `<ul class="result-list">`;
+            selected.forEach((sword, idx) => {
+                html += `
+                    <li class="result-item">
+                        <span class="role-tag">${roleLabels[idx] || "隊員"}</span>
+                        <span style="font-weight: 600; color: var(--honmaru-wood); flex: 1; margin-left: 10px;">${sword.name}</span>
+                        <span class="sword-tag">${sword.type}</span>
+                    </li>
+                `;
+            });
+            html += `</ul>`;
+            res.innerHTML = html;
         }
 
         /* --- 遠征排行結束，以下為新插入的入手查詢邏輯 --- */
